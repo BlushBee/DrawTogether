@@ -1,0 +1,351 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+	<title>Draw together @ Blushyface.com</title>
+	
+	<link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="images/favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="images/favicon/favicon-16x16.png">
+	<link rel="manifest" href="images/favicon/site.webmanifest">
+	<link rel="mask-icon" href="images/favicon/safari-pinned-tab.svg" color="#ffaec9">
+	<link rel="shortcut icon" href="images/favicon/favicon.ico">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-config" content="images/favicon/browserconfig.xml">
+	<meta name="theme-color" content="#ffffff">
+
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/fontawesome.min.css">
+	<link rel="stylesheet" href="css/styles.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <span class="navbar-text no-select">
+            <!--<a class="navbar-menu-toggle">
+                <i class="fal fa-bars"></i>
+            </a>-->
+            <span class="cursor-pointer" data-toggle="modal" data-target="#room-modal">
+                Current room: <strong><span id="roomName">Not connected!</span></strong>
+            </span>
+            <a class="navbar-player-info">
+                <i class="fal fa-user"></i><span id="playerCount">0</span>
+            </a>
+        </span>
+    </nav>
+
+    <div id="container">
+
+        <div id="sticky-toolbar" class="no-select">
+            <div class="toolbar-item">
+                <a data-toggle="modal" data-target="#room-modal">
+                    <div class="toolbar-item-icon room-selector" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="join or create a room">
+                        <i class="fal fa-pen-square"></i>
+                    </div>
+                </a>
+            </div>
+            <div class="toolbar-item">
+                <a>
+                    <div class="toolbar-item-icon pen-size-selector" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="change pen size">
+                        <i class="fal fa-pen"></i>
+                    </div>
+                </a>
+                <div class="toolbar-item-menu">
+                    <div class="pen-size-changer">
+                        <a class="stroke-increase">
+                            <i class="fal fa-chevron-up"></i>
+                        </a>
+                        <span class="current-stroke-size">
+                            4
+                        </span>
+                        <a class="stroke-decrease">
+                            <i class="fal fa-chevron-down"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="toolbar-item">
+                <a>
+                    <div class="toolbar-item-icon color-selector" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="choose color">
+                        <i class="fal fa-palette"></i>
+                    </div>
+                </a>
+                <div class="toolbar-item-menu">
+                    <div class="color-pallet">
+                        <a class="pallet-color" onclick="setColor('#fff')" style="background-color: #fff;"></a>
+                        <a class="pallet-color" onclick="setColor('#000')" style="background-color: #000;"></a>
+                        <a class="pallet-color" onclick="setColor('#ffaec9')" style="background-color: #ffaec9;"></a>
+                        <a class="pallet-color" onclick="setColor('#00a2e8')" style="background-color: #00a2e8;"></a>
+                        <a class="pallet-color" onclick="setColor('#99d9ea')" style="background-color: #99d9ea;"></a>
+                        <a class="pallet-color" onclick="setColor('#ed1c24')" style="background-color: #ed1c24;"></a>
+                        <a class="pallet-color" onclick="setColor('#b97a57')" style="background-color: #b97a57;"></a>
+                        <a class="pallet-color" onclick="setColor('#fff200')" style="background-color: #fff200;"></a>
+                        <a class="pallet-color" onclick="setColor('#c3c3c3')" style="background-color: #c3c3c3;"></a>
+                        <a class="pallet-color" onclick="setColor('#22b14c')" style="background-color: #22b14c;"></a>
+                        <a class="pallet-color" onclick="setColor('#ff7f27')" style="background-color: #ff7f27;"></a>
+                        <a class="pallet-color" onclick="setColor('#3f48cc')" style="background-color: #3f48cc;"></a>
+                        <a class="pallet-color" onclick="setColor('#a349a4')" style="background-color: #a349a4;"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="toolbar-item">
+                <a onclick="undo()">
+                    <div class="toolbar-item-icon undo-selector" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="undo last change">
+                        <i class="fal fa-undo"></i>
+                    </div>
+                </a>
+            </div>
+            <div class="toolbar-item">
+                <a data-toggle="modal" data-target="#clear-modal">
+                    <div class="toolbar-item-icon clear-selector" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="delete everything">
+                        <i class="fal fa-trash"></i>
+                    </div>
+                </a>
+            </div>
+            <!--<div class="toolbar-item">
+            <a data-toggle="modal" data-target="#login-modal">
+                <div class="toolbar-item-icon login-selector" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="login">
+                    <i class="fal fa-sign-in-alt"></i>
+                </div>
+            </a>
+        </div>-->
+
+            <div class="toolbar-splitter">
+                <div></div>
+            </div>
+
+            <div class="toolbar-item">
+                <a data-toggle="modal" data-target="#settings-modal">
+                    <div class="toolbar-item-icon settings-selector" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="general settings">
+                        <i class="fal fa-cog"></i>
+                    </div>
+                </a>
+            </div>
+            <div class="toolbar-item">
+                <a data-toggle="modal" data-target="#about-modal">
+                    <div class="toolbar-item-icon about-selector" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="about draw together!">
+                        <i class="fal fa-info"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div id="connection-status">
+            <i class="fas fa-circle"></i> <span id="playerName">Not connected!</span>
+        </div>
+
+        <div id="canvasWrapper">
+
+        </div>
+        <label id="inviteUrl"></label>
+
+        <div id="chatRoom">
+            <div id="chatRoomMessages"></div>
+            <div id="chatRoomMessageSender">
+                <input type="text" id="chatRoomInputMessage" value="Type here to send a message to the room">
+                <button onclick="sendChatRoomMessage()" type="button">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="room-modal" tabindex="-1" role="dialog" aria-labelledby="room-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="room-modal-label">Join or create a room</h5>
+                    <a class="modal-close" data-dismiss="modal" aria-label="Close">
+                        <i class="fal fa-times"></i>
+                    </a>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Roomname:</label><br>
+                            <input type="text" class="w-100 mb-0" id="roomInputName" value="lobby">
+                        </div>
+                        <div class="col-md-6">
+                            <label>Password:</label><br>
+                            <input type="password" class="w-100 mb-0" id="roomInputPassword" value="">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="alert alert-dark" role="alert">
+                        <span id="roomMessage">
+                            Click the button to join a room or create a room!
+                        </span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white mr-auto" data-dismiss="modal">Back to drawing!</button>
+                    <button onclick="joinRoom()" class="btn btn-black" type="button">Create / join room</button><br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="settings-modal" tabindex="-1" role="dialog" aria-labelledby="settings-modal-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settings-modal-label">General Settings</h5>
+                    <a class="modal-close" data-dismiss="modal" aria-label="Close">
+                        <i class="fal fa-times"></i>
+                    </a>
+                </div>
+                <div class="modal-body">
+                    <label>
+                        <input type="checkbox" id="showPlayerName" onclick="" checked style="margin-right: 10px;">Show names of others while drawing
+                    </label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">Back to drawing!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="login-modal" tabindex="-1" role="dialog" aria-labelledby="login-modal-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="login-modal-label">Login</h5>
+                    <a class="modal-close" data-dismiss="modal" aria-label="Close">
+                        <i class="fal fa-times"></i>
+                    </a>
+                </div>
+                <div class="modal-body">
+                    <img class="w-100" src="https://i.imgur.com/2ZDxN7w.png" style="padding: 0 80px;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">Back to drawing!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="about-modal" tabindex="-1" role="dialog" aria-labelledby="about-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="about-modal-label">About Draw together!</h5>
+                    <a class="modal-close" data-dismiss="modal" aria-label="Close">
+                        <i class="fal fa-times"></i>
+                    </a>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <img src="images/draw-together-logo-temporary.png">
+                        <p>A multiplayer drawing app.</p>
+                    </div>
+                    <br>
+                    <h4>Changelog</h4>
+                    <p>(2020-11-01)</p>
+
+                    <h6>Added</h6>
+                    <ul>
+
+                        <li>resizable canvas (middle mouse + move)</li>
+                        <li>room invite link</li>
+                    </ul>
+                    <br>
+                    <h4>Contributers</h4>
+                    <p>
+                        Blushies community
+                        <a href="https://blushyface.com/discord/" target="_blank">
+                            <i class="fab fa-discord"></i>
+                        </a>
+
+                        <br>
+
+                        Blushyface
+                        <a href="https://twitter.com/BlushyFace" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.twitch.tv/blushyface" target="_blank">
+                            <i class="fab fa-twitch"></i>
+                        </a>
+
+                        <br>
+
+                        Katzen48
+                        <a href="https://twitter.com/katzen48" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.twitch.tv/katzen48" target="_blank">
+                            <i class="fab fa-twitch"></i>
+                        </a>
+                        <a href="https://www.github.com/katzen48" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
+
+                        <br>
+
+                        Dracaratos
+                        <a href="https://twitter.com/dracaratos" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.twitch.tv/dracaratos" target="_blank">
+                            <i class="fab fa-twitch"></i>
+                        </a>
+                        <a href="https://www.github.com/Dracaratos" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
+
+                        <br>
+
+                        adeleine
+                        <a href="https://twitter.com/adeleine1412" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.twitch.tv/adeleine1412" target="_blank">
+                            <i class="fab fa-twitch"></i>
+                        </a>
+                        <a href="https://www.github.com/adeleine1412" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">Back to drawing!</button>
+                </div>
+            </div>
+        </div>
+</div>
+
+<div class="modal fade" id="clear-modal" tabindex="-1" role="dialog" aria-labelledby="clear-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="clear-modal-label">Clear room drawing history</h5>
+                <a class="modal-close" data-dismiss="modal" aria-label="Close">
+                    <i class="fal fa-times"></i>
+                </a>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Are you sure you want to clear the room?<br>
+                    <br>
+                    <strong>This will delete everything that was drawn. Including everything drawn from others!</strong>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-white mr-auto" data-dismiss="modal">Back to drawing!</button>
+                <button onclick="resetRoom()" class="btn btn-red" data-dismiss="modal" type="button">Clear everything..</button><br>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="lib/signalr/signalr.js"></script>
+<script src="lib/msgpack5.js"></script>
+<script src="lib/signalr-protocol-msgpack.js"></script>
+<script src="lib/jquery-3.5.1.min.js"></script>
+<script src="lib/jquery-ui.min.js"></script>
+<script src="js/bootstrap.bundle.min.js"></script>
+<script src="js/ui.min.js"></script>
+<script src="js/drawtogether.js"></script>
+<script src="js/connection.js"></script>
+
+   
+</body>
+</html>

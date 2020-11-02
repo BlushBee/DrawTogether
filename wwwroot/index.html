@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Draw together @ Blushyface.com</title>
+	
+	<link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="images/favicon/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="images/favicon/favicon-16x16.png">
+	<link rel="manifest" href="images/favicon/site.webmanifest">
+	<link rel="mask-icon" href="images/favicon/safari-pinned-tab.svg" color="#ffaec9">
+	<link rel="shortcut icon" href="images/favicon/favicon.ico">
+	<meta name="msapplication-TileColor" content="#ffffff">
+	<meta name="msapplication-config" content="images/favicon/browserconfig.xml">
+	<meta name="theme-color" content="#ffffff">
+</head>
+<body>
+
+	<!-- move to stylesheet.css -->
+	<style>
+		body {
+			font-family: Arial, Helvetica, sans-serif;
+			background-color: #fff;
+			padding: 0;
+			margin: 0;
+		}
+		.pick-a-style {
+			transform: translate(-50%, -50%);
+			justify-content: center;
+			position: absolute;
+			text-align: center;
+			display: grid;
+			left: 50%;
+			top: 50%;
+		}
+		#container {
+			z-index: 2;
+			height: 100%;
+			width: 100%;
+		}
+		.pick-a-style>a.special {
+			-webkit-box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.15);
+			-moz-box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.15);
+			box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.15);
+
+			transition-duration: 0.3s;
+			justify-content: center;
+			background-color: #fff;
+			border: 1px solid #000;
+			text-decoration: none;
+			border-radius: 15px;
+			text-align: center;
+			font-size: 16px;
+			padding: 15px;
+			color: #000;
+		}
+		.pick-a-style>a.special:hover {
+			background-color: #000;
+			color: #fff;
+		}
+		.pick-a-style>a:first-of-type {
+			margin-bottom: 15px;
+		}
+		.pick-a-style>a:last-of-type {
+			background-color: #fff;
+			text-decoration: none;
+			border-radius: 5px;
+			font-size: 12px;
+			margin: 0 40px;
+			padding: 3px;
+			color: #000;
+		}
+		.collage {
+			position: absolute;
+			z-index: -1;
+			width: 100%;
+			bottom: 0;
+			left: 0;
+		}
+	</style>
+
+	<div id="container">
+		<div class="pick-a-style">
+			<img src="images/draw-together-logo-temporary.png" style="margin: 0 auto 20px auto;">
+			<a class="special" href="alternative">Let's get going!</a>
+			<a href="default">check out WIP features ></a>
+		</div>
+	</div>
+
+	<img src="images/blushy-collage.png" class="collage">
+
+
+</body>
+</html>
