@@ -113,6 +113,13 @@
                     </div>
                 </a>
             </div>
+            <div class="toolbar-item">
+                <a data-toggle="modal" data-target="#chat-modal">
+                    <div class="toolbar-item-icon chat-selector" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="join the chat">
+                        <i class="fal fa-comments-alt"></i>
+                    </div>
+                </a>
+            </div>
             <!--<div class="toolbar-item">
             <a data-toggle="modal" data-target="#login-modal">
                 <div class="toolbar-item-icon login-selector" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="login">
@@ -148,13 +155,29 @@
         <div id="canvasWrapper">
 
         </div>
-        <label id="inviteUrl"></label>
+    </div>
 
-        <div id="chatRoom">
-            <div id="chatRoomMessages"></div>
-            <div id="chatRoomMessageSender">
-                <input type="text" id="chatRoomInputMessage" value="Type here to send a message to the room">
-                <button onclick="sendChatRoomMessage()" type="button">Send</button>
+    <div class="modal fade" id="chat-modal" tabindex="-1" role="dialog" aria-labelledby="chat-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="chat-modal-label">Chat</h5>
+                    <a class="modal-close" data-dismiss="modal" aria-label="Close">
+                        <i class="fal fa-times"></i>
+                    </a>
+                </div>
+                <div class="modal-body">
+                    <div id="chatRoom">
+                        <div id="chatRoomMessages"></div>
+                        <div id="chatRoomMessageSender">
+                            <input type="text" id="chatRoomInputMessage" value="Type here to send a message to the room">
+                            <button onclick="sendChatRoomMessage()" type="button">Send</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">Back to drawing!</button>
+                </div>
             </div>
         </div>
     </div>
@@ -208,6 +231,9 @@
                             <label>Password:</label><br>
                             <input type="password" class="w-100 mb-0" id="roomInputPassword" value="">
                         </div>
+                    </div>
+                    <div class="alert alert-dark" role="alert">
+                        <span id="inviteUrl"></span>
                     </div>
                     <br>
                     <div class="alert alert-dark" role="alert">
