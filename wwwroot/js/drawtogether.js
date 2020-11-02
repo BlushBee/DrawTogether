@@ -106,7 +106,7 @@ $("#chatRoomInputMessage").focus(function () {
 });
 
 $("#chatRoomInputMessage").focusout(function () {
-    $(this).val("Type here to send a message to the room");
+    $(this).attr("placeholder","Type here to send a message to the room");
 });
 
 $("#chatRoomInputMessage").on('keyup', function (e) {

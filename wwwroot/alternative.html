@@ -161,7 +161,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="chat-modal-label">Chat</h5>
+                    <h5 class="modal-title" id="chat-modal-label">Room chat</h5>
                     <a class="modal-close" data-dismiss="modal" aria-label="Close">
                         <i class="fal fa-times"></i>
                     </a>
@@ -169,10 +169,10 @@
                 <div class="modal-body">
                     <div id="chatRoom">
                         <div id="chatRoomMessages"></div>
-                        <div id="chatRoomMessageSender">
-                            <input type="text" id="chatRoomInputMessage" value="Type here to send a message to the room">
-                            <button onclick="sendChatRoomMessage()" type="button">Send</button>
-                        </div>
+                    </div>
+                    <div id="chatRoomMessageSender">
+                        <input type="text" id="chatRoomInputMessage" class="w-100" placeholder="Type here to send a message to the room">
+                        <a class="btn btn-black" style="float: right;" onclick="sendChatRoomMessage()" type="button">Send</a>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -232,10 +232,10 @@
                             <input type="password" class="w-100 mb-0" id="roomInputPassword" value="">
                         </div>
                     </div>
+                    <br>
                     <div class="alert alert-dark" role="alert">
                         <span id="inviteUrl"></span>
                     </div>
-                    <br>
                     <div class="alert alert-dark" role="alert">
                         <span id="roomMessage">
                             Click the button to join a room or create a room!

@@ -111,7 +111,7 @@ connection.on("setupRoom", async (roomName, description, playerCount, inviteLink
     document.getElementById("roomName").innerText = roomName;
     document.getElementById("roomInputName").value = roomName;
     document.getElementById("playerCount").innerText = playerCount;
-    document.getElementById("inviteUrl").innerText = " | Room invite link: " + window.location.protocol + "//" + document.location.host + document.location.pathname + "?invite=" + inviteLink;
+    document.getElementById("inviteUrl").innerText = " Room invite link: " + window.location.protocol + "//" + document.location.host + document.location.pathname + "?invite=" + inviteLink;
     document.getElementById("playerName").innerText = connId;
     document.getElementById("chatRoomInfo").innerHTML = 'Welcome to #' + roomName + '<br>Info: ' + description;
     var obj = convertUint8ArrayToObject(history);

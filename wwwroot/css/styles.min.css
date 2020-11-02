@@ -456,3 +456,9 @@ input {
 	left: 50%;
 	top: 50%;
 }
+
+#chatRoom {
+	margin: 0 0 20px 0;
+	overflow-x: auto;
+	height: 330px !important;
+}
