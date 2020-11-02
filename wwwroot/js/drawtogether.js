@@ -7,7 +7,7 @@ var strokeStartFrom = [0, 0];
 var strokeEndAt = [0, 0];
 var undoCollectionId = 0;
 var setUndoCollectionId = true;
-var selectedSize = 2;
+var selectedSize = 4;
 var selectedColor = "#000";
 var footer;
 var canvas;
