@@ -25,6 +25,7 @@
 }
 
 #tools {
+    display: none; /* don't show it by default */
     float: left;
     padding-left: 5px;
     padding-top: 2px;
@@ -73,10 +74,6 @@ canvas {
     padding: 10px;
     position: absolute;
     bottom: 0;
-}
-
-#saveAsJson {
-    display: none; /* don't show it by default */
 }
 
 /*      div {

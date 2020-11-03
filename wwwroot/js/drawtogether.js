@@ -2,7 +2,9 @@
 //var remoteDrawingHistory = []; // offload history to client + add identifier user name -> alias (to hide logged in user)
 var drawingHistory = []; // combines local and remote to test if this performs better
 var roomPlayers = []; // keep track of players in room in preparation of adding ban / kick / mute or remove player drawing from room
-
+var playerClientId;
+var playerName;
+var playerSessionId;
 var enableShowRemoteDrawingHistory = true; // todo when enabled hide remote people drawing but keep history
 var isInRoom = false;
 var strokeStartFrom = [0, 0];
@@ -10,7 +12,7 @@ var strokeEndAt = [0, 0];
 var undoCollectionId = 0;
 var setUndoCollectionId = true;
 var selectedSize = 4;
-var selectedColor = "#000";
+var selectedColor = "rgb(0,0,0)";
 var footer;
 var canvas;
 var canvasOverlay;
@@ -152,7 +154,7 @@ function startDraw(e) {
         }
         setUndoCollectionId = false;
         if (e.buttons === 1) {
-            getMousePosition(canvasOverlay, e);
+            strokeStartFrom = getMousePosition(canvasOverlay, e);
             canvasOffsetX = Math.floor((canvasOffsetX + (strokeStartFrom[0] - strokeEndAt[0])));
             canvasOffsetY = Math.floor((canvasOffsetY + (strokeStartFrom[1] - strokeEndAt[1])));
             updatePlayerDrawAction();
@@ -192,14 +194,14 @@ async function drawEnd() {
 
 
 async function updatePlayerDrawAction() {
-    var rgbColor = hexToRgb(selectedColor);
+   var color = rgbColorToByteArray(selectedColor);
     var action = [
         strokeEndAt[0] - canvasOffsetX,
         strokeEndAt[1] - canvasOffsetY,
         strokeStartFrom[0] - canvasOffsetX,
         strokeStartFrom[1] - canvasOffsetY
     ];
-    var stroke = { connId: connId, id: undoCollectionId, size: selectedSize, stroke: action, color: rgbColor };
+    var stroke = { connId: connId, id: undoCollectionId, size: selectedSize, stroke: action, color: color};
 
     //pass the local offset to stroke
     setStroke(stroke.stroke[0] + canvasOffsetX, stroke.stroke[1] + canvasOffsetY, stroke.stroke[2] + canvasOffsetX, stroke.stroke[3] + canvasOffsetY, selectedSize, selectedColor);
@@ -214,6 +216,19 @@ async function updatePlayerDrawAction() {
     }
 }
 
+function rgbColorToByteArray(rgb) {
+    var color = rgb.substring(4, rgb.length-1)
+        .replace(/ /g, '')
+        .split(',');
+    return [parseInt(color[0]), parseInt(color[1]), parseInt(color[2])];
+
+}
+
+function byteArrayToRGB(byte) {
+    return `rgb(${byte[0]},${byte[1]},${byte[2]})`;
+
+
+}
 function setStroke(x1, y1, x2, y2, size, color) {
     context.lineCap = "round";
     context.lineWidth = size;
@@ -293,8 +308,8 @@ async function joinRoom() {
 function redraw(drawHistory) {
     //console.log("redraw()");
     drawHistory.forEach(function (item) {
-        var hexColor = rgbToHex(item.color[0], item.color[1], item.color[2]);
-        setStroke(item.stroke[0] + canvasOffsetX, item.stroke[1] + canvasOffsetY, item.stroke[2] + canvasOffsetX, item.stroke[3] + canvasOffsetY, item.size, hexColor);
+        //var hexColor = rgbToHex(item.color[0], item.color[1], item.color[2]);
+        setStroke(item.stroke[0] + canvasOffsetX, item.stroke[1] + canvasOffsetY, item.stroke[2] + canvasOffsetX, item.stroke[3] + canvasOffsetY, item.size, byteArrayToRGB(item.color));
     });
 }
 
@@ -342,11 +357,20 @@ function resizeFooter(offsetY) {
 
 
 
-function createChatRoomMessage(from, message) {
+function createChatRoomMessage(from, message, type) {
     var divFrom = document.createElement('div');
     divFrom.id = "chatMessage";
-    divFrom.innerHTML = from + ": " + message;
 
+    if (from !== "") {
+        divFrom.innerHTML = from + ": " + message;
+    } else {
+        divFrom.innerHTML = message;
+    }
+   
+
+    if (type === 2 || type === 3) {
+        divFrom.style.color = "grey";
+    }
     var chatRoom = document.getElementById("chatRoomMessages");
     chatRoom.appendChild(divFrom);
 
@@ -385,32 +409,6 @@ function getMousePosition(canvas, event) {
 }
 
 
-function hexToRgb(hex) {
-    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    hex = hex.replace(shorthandRegex, function (m, r, g, b) {
-        return r + r + g + g + b + b;
-    });
-
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)];
-    //return result ? {
-    //    r: parseInt(result[1], 16),
-    //    g: parseInt(result[2], 16),
-    //    b: parseInt(result[3], 16)
-    //} : null;
-}
-
-
-function componentToHex(c) {
-    var hex = c.toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
-}
-
-function rgbToHex(r, g, b) {
-    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-}
-
 function setColor(color) {
     selectedColor = color;
 }
@@ -418,7 +416,6 @@ function setColor(color) {
 function setStrokeSize(size) {
     selectedSize = size;
 }
-
 
 
 function undoDrawAction(connId, strokeId) {
