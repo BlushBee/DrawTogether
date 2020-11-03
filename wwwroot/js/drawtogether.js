@@ -1,6 +1,8 @@
-﻿var localDrawingHistory = [];
+﻿//var localDrawingHistory = [];
+//var remoteDrawingHistory = []; // offload history to client + add identifier user name -> alias (to hide logged in user)
+var drawingHistory = []; // combines local and remote to test if this performs better
 var roomPlayers = []; // keep track of players in room in preparation of adding ban / kick / mute or remove player drawing from room
-var remoteDrawingHistory = []; // offload history to client + add identifier username -> alias (to hide logged in user)
+
 var enableShowRemoteDrawingHistory = true; // todo when enabled hide remote people drawing but keep history
 var isInRoom = false;
 var strokeStartFrom = [0, 0];
@@ -76,8 +78,9 @@ $(window).on('load',
         resizeChatRoom(chatRoomOffsetY);
         resizeFooter(footerOffsetY);
 
-        redraw(localDrawingHistory);
-        redraw(remoteDrawingHistory);
+        //redraw(localDrawingHistory);
+        //redraw(remoteDrawingHistory);
+        redraw(drawingHistory);
     });
 
 window.addEventListener("resize", function () {
@@ -85,8 +88,9 @@ window.addEventListener("resize", function () {
     resizeCanvas(canvasOverlay);
     resizeChatRoom(chatRoomOffsetY);
     resizeFooter(footerOffsetY);
-    redraw(localDrawingHistory);
-    redraw(remoteDrawingHistory);
+    //redraw(localDrawingHistory);
+    //redraw(remoteDrawingHistory);
+    redraw(drawingHistory);
 });
 
 document.addEventListener('keydown', function (event) {
@@ -106,7 +110,7 @@ $("#chatRoomInputMessage").focus(function () {
 });
 
 $("#chatRoomInputMessage").focusout(function () {
-    $(this).attr("placeholder","Type here to send a message to the room");
+    $(this).attr("placeholder", "Type here to send a message to the room");
 });
 
 $("#chatRoomInputMessage").on('keyup', function (e) {
@@ -129,16 +133,14 @@ $("#roomInputPassword").on('keyup', function (e) {
 });
 
 
-
-
 function createCanvas(id) {
 
-    console.log(`createCanvas(${id})`);
+    // console.log(`createCanvas(${id})`);
 
     var canvas = document.createElement('canvas');
     canvas.style.border = "2px solid #000";
     canvas.setAttribute("id", id);
-    console.log(canvas);
+
     return canvas;
 }
 
@@ -151,8 +153,8 @@ function startDraw(e) {
         setUndoCollectionId = false;
         if (e.buttons === 1) {
             getMousePosition(canvasOverlay, e);
-            canvasOffsetX = canvasOffsetX + (strokeStartFrom[0] - strokeEndAt[0]);
-            canvasOffsetY = canvasOffsetY + (strokeStartFrom[1] - strokeEndAt[1]);
+            canvasOffsetX = Math.floor((canvasOffsetX + (strokeStartFrom[0] - strokeEndAt[0])));
+            canvasOffsetY = Math.floor((canvasOffsetY + (strokeStartFrom[1] - strokeEndAt[1])));
             updatePlayerDrawAction();
             strokeEndAt = strokeStartFrom;
         }
@@ -167,13 +169,13 @@ function startWhileDraw(e) {
             updatePlayerDrawAction();
         }
         else if (e.buttons === 4) { // middle button
-            canvasOffsetX = canvasOffsetX + (strokeStartFrom[0] - strokeEndAt[0]);
-            canvasOffsetY = canvasOffsetY + (strokeStartFrom[1] - strokeEndAt[1]);
-
+            canvasOffsetX = Math.floor((canvasOffsetX + (strokeStartFrom[0] - strokeEndAt[0])));
+            canvasOffsetY = Math.floor((canvasOffsetY + (strokeStartFrom[1] - strokeEndAt[1])));
             context.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height);
-            contextOverlay.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height);
-            redraw(remoteDrawingHistory);
-            redraw(localDrawingHistory);
+            //contextOverlay.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height); // no need to clear the overlay as we aren't drawing
+            //redraw(remoteDrawingHistory);
+            //redraw(localDrawingHistory);
+            redraw(drawingHistory);
         }
         strokeEndAt = strokeStartFrom;
     }
@@ -193,15 +195,17 @@ async function updatePlayerDrawAction() {
     var rgbColor = hexToRgb(selectedColor);
     var action = [
         strokeEndAt[0] - canvasOffsetX,
-        strokeEndAt[1] - canvasOffsetY, 
-        strokeStartFrom[0]- canvasOffsetX,
+        strokeEndAt[1] - canvasOffsetY,
+        strokeStartFrom[0] - canvasOffsetX,
         strokeStartFrom[1] - canvasOffsetY
     ];
-    var stroke = { connId: connId, id: undoCollectionId, size: selectedSize, stroke: action, color: rgbColor};
+    var stroke = { connId: connId, id: undoCollectionId, size: selectedSize, stroke: action, color: rgbColor };
 
     //pass the local offset to stroke
     setStroke(stroke.stroke[0] + canvasOffsetX, stroke.stroke[1] + canvasOffsetY, stroke.stroke[2] + canvasOffsetX, stroke.stroke[3] + canvasOffsetY, selectedSize, selectedColor);
-    localDrawingHistory.push(stroke);  
+    //localDrawingHistory.push(stroke);
+    drawingHistory.push(stroke);
+    //redraw(drawingHistory);
 
     //var bytes = msgpack5({ forceFloat64: true }).encode(stroke);
     //console.log(bytes);
@@ -223,7 +227,8 @@ function setStroke(x1, y1, x2, y2, size, color) {
 
 
 function drawPlayerName(canvas, context, x, y, name) {
-    console.log("drawPlayerName()");
+    //console.log("drawPlayerName()");
+
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.font = "14px Arial";
     context.fillText(name, x, y);
@@ -232,18 +237,26 @@ function drawPlayerName(canvas, context, x, y, name) {
 
 async function undo() {
     undoCollectionId = 0;
-
-    localDrawingHistory.forEach(function (item) {
-        if (item.id > undoCollectionId) {
+    drawingHistory.forEach(function (item) {
+        if (item.id > undoCollectionId && item.connId === connId) {
             undoCollectionId = item.id;
         }
     });
 
-    localDrawingHistory = localDrawingHistory.filter(item => !(item.id === undoCollectionId));
+    drawingHistory = drawingHistory.filter(item => !(item.id === undoCollectionId && item.connId === connId));
+
+    //localDrawingHistory.forEach(function (item) {
+    //    if (item.id > undoCollectionId) {
+    //        undoCollectionId = item.id;
+    //    }
+    //});
+
+    //localDrawingHistory = localDrawingHistory.filter(item => !(item.id === undoCollectionId));
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    redraw(remoteDrawingHistory);
-    redraw(localDrawingHistory);
+    //redraw(remoteDrawingHistory);
+    //redraw(localDrawingHistory);
+    redraw(drawingHistory);
 
     if (connection.state === signalR.HubConnectionState.Connected) {
         await connection.invoke("UndoDrawAction", connId, undoCollectionId);
@@ -278,20 +291,20 @@ async function joinRoom() {
 
 
 function redraw(drawHistory) {
-    console.log("redraw()");
+    //console.log("redraw()");
     drawHistory.forEach(function (item) {
-        var hexColor =  rgbToHex(item.color[0],item.color[1],item.color[2]);
+        var hexColor = rgbToHex(item.color[0], item.color[1], item.color[2]);
         setStroke(item.stroke[0] + canvasOffsetX, item.stroke[1] + canvasOffsetY, item.stroke[2] + canvasOffsetX, item.stroke[3] + canvasOffsetY, item.size, hexColor);
     });
 }
 
 function resizeCanvas(canvas) {
-    console.log("resizeCanvas()");
+    // console.log("resizeCanvas()");
     //context.canvas.width = 1280;
     //context.canvas.height = 720;
 
-    canvas.width = innerWidth - 440;
-    canvas.height = innerHeight - 150;
+    canvas.width = Math.floor(innerWidth - 440);
+    canvas.height = Math.floor((innerHeight - 150));
     context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -304,26 +317,26 @@ function ResetCanvas(context) {
 //note when resizing an element that has been created previously you can notice the resizing on load of page *that's why i opted ro create the elements instead and then resize)
 // needs to be done properly when have time
 function resizeChatRoom(offsetY) {
-    console.log("resizeChatRoom()");
+    // console.log("resizeChatRoom()");
 
     const chatRoom = document.getElementById("chatRoom");
-    chatRoom.style.height = innerHeight - offsetY + "px";
+    chatRoom.style.height = Math.floor(innerHeight - offsetY) + "px";
 }
 
 function createFooter(footerOffsetY) {
-    console.log("createFooter()");
+    // console.log("createFooter()");
 
     const footer = document.createElement('div');
     footer.id = "footer";
     footer.innerHTML = 'Website: <a href="https://blog.blushyface.com/" target="_blank">blushyface.com</a> | Feedback & suggestions: <a href="https://blushyface.com/discord/" target="_blank"> Discord</a> | Hosted @ ' + document.location.host;
-    footer.style.marginTop = innerHeight - footerOffsetY + "px";
+    footer.style.marginTop = Math.floor(innerHeight - footerOffsetY) + "px";
 
     return footer;
 }
 
 function resizeFooter(offsetY) {
     console.log("resizeFooter()");
-    footer.style.marginTop = innerHeight - offsetY + "px";
+    footer.style.marginTop = Math.floor(innerHeight - offsetY) + "px";
 }
 
 
@@ -341,7 +354,7 @@ function createChatRoomMessage(from, message) {
 }
 
 
-function saveRoomDrawing() {
+function saveRoomDrawingAsImage() {
     console.log("saveRoomDrawing()");
 
     let download = document.createElement('a');
@@ -353,6 +366,15 @@ function saveRoomDrawing() {
     });
 }
 
+
+async function saveRoomDrawingAsJson() {
+    // console.log("saveRoomDrawingAsFile()");
+
+    if (connection.state === signalR.HubConnectionState.Connected) {
+        var room = document.getElementById('roomName').innerText;
+        await connection.invoke("SaveDrawingAsJson", connId, room);
+    }
+}
 
 function getMousePosition(canvas, event) {
     const rect = canvas.getBoundingClientRect();
@@ -366,7 +388,7 @@ function getMousePosition(canvas, event) {
 function hexToRgb(hex) {
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
     var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+    hex = hex.replace(shorthandRegex, function (m, r, g, b) {
         return r + r + g + g + b + b;
     });
 
@@ -400,18 +422,22 @@ function setStrokeSize(size) {
 
 
 function undoDrawAction(connId, strokeId) {
-    if (Array.isArray(remoteDrawingHistory) && remoteDrawingHistory.length) {
-        remoteDrawingHistory = remoteDrawingHistory.filter(item => !(item.connId === connId && item.id === strokeId));
+    if (Array.isArray(drawingHistory) && drawingHistory.length) {
+        drawingHistory = drawingHistory.filter(item => !(item.connId === connId && item.id === strokeId));
+       // remoteDrawingHistory = remoteDrawingHistory.filter(item => !(item.connId === connId && item.id === strokeId));
         context.clearRect(0, 0, canvas.width, canvas.height);
-        redraw(remoteDrawingHistory);
-        redraw(localDrawingHistory);
+
+        //redraw(remoteDrawingHistory);
+        //redraw(localDrawingHistory);
+        redraw(drawingHistory);
     }
 }
 
 async function resetRoom() {
     ResetCanvas(context);
-    remoteDrawingHistory = [];
-    localDrawingHistory = [];
+    //remoteDrawingHistory = [];
+    //localDrawingHistory = [];
+    drawingHistory = [];
 
     if (connection.state === signalR.HubConnectionState.Connected) {
         await connection.invoke("ResetRoom", connId);
@@ -425,11 +451,9 @@ async function sendChatRoomMessage() {
     }
 }
 
-
-
 // due to reducing data packet size we are now receiving data as a uInt8 array but we need to convert it.
 function convertUint8ArrayToJson(uInt8Array) {
-    console.log("convertUint8ArrayToJson()");
+    // console.log("convertUint8ArrayToJson()");
 
     var obj = msgpack5({ forceFloat64: true }).decode(uInt8Array);
     var json = JSON.stringify(obj);
@@ -437,7 +461,7 @@ function convertUint8ArrayToJson(uInt8Array) {
 }
 
 function convertUint8ArrayToObject(uInt8Array) {
-    console.log("convertUint8ArrayToObject()");
+    // console.log("convertUint8ArrayToObject()");
 
     return msgpack5({ forceFloat64: true }).decode(uInt8Array);
 }

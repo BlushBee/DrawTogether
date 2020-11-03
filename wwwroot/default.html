@@ -23,7 +23,7 @@
             <label> Name: </label>
             <input type="text" id="roomInputName" value="lobby">
             <label>Password: </label>
-            <input type="text" id="roomInputPassword" value="">
+            <input type="password" id="roomInputPassword" value="">
             <br />
 
             <label>Size</label>
@@ -51,8 +51,9 @@
                 <button onclick="setColor('#a349a4')" type="button" style="background-color: #a349a4; border: 2px solid #000; padding: 10px 10px;cursor: pointer;"></button>
             </div>
             <div id="tools">
-                <button onclick="saveRoomDrawing()" type="button">Save drawing</button>
-                <span>| </span><label id="inviteUrl"></label>
+                <button onclick="saveRoomDrawingAsImage()" type="button">Save drawing as image</button>
+                <button id="saveAsJson" onclick="saveRoomDrawingAsJson()" type="button">Save drawing as file</button>
+                <label id="inviteUrl"></label>
             </div>
         </div>
 

@@ -65,6 +65,8 @@ connection.on("pingpong", async (message) => {
 
 connection.on("undoDrawAction", async (stroke) => {
     var obj = convertUint8ArrayToObject(stroke);
+
+    console.log("undoDrawAction() " + obj);
     await undoDrawAction(obj[0], obj[1]);
 });
 
@@ -77,7 +79,7 @@ connection.on("recieveChatRoomMessage", async (chatMessage) => {
     createChatRoomMessage(obj.from, obj.message);
 });
 
-connection.on("setMessage", async (message) => {
+connection.on("recieveMessage", async (message) => {
     var obj = convertUint8ArrayToObject(message);
     document.getElementById('roomMessage').innerText = obj.message;
 
@@ -91,22 +93,20 @@ connection.on("setMessage", async (message) => {
     }
 });
 
-connection.on("resetRoom", () => {
-    ResetCanvas(context);
-});
 
 connection.on("updatePlayerCount", async (count) => {
     var obj = convertUint8ArrayToObject(count);
     document.getElementById('playerCount').innerText = obj;
 });
 
+
 //todo update server side to send it as one object
 connection.on("setupRoom", async (roomName, description, playerCount, inviteLink, history) => {
     context.clearRect(0, 0, canvas.width, canvas.height);
-    window.localDrawingHistory = [];
-    window.remoteDrawingHistory = [];
+    //localDrawingHistory = [];
+    //remoteDrawingHistory = [];
+    drawingHistory = [];
     window.isInRoom = true;
-
 
     document.getElementById("roomName").innerText = roomName;
     document.getElementById("roomInputName").value = roomName;
@@ -114,9 +114,11 @@ connection.on("setupRoom", async (roomName, description, playerCount, inviteLink
     document.getElementById("inviteUrl").innerText = " Room invite link: " + window.location.protocol + "//" + document.location.host + document.location.pathname + "?invite=" + inviteLink;
     document.getElementById("playerName").innerText = connId;
     document.getElementById("chatRoomInfo").innerHTML = 'Welcome to #' + roomName + '<br>Info: ' + description;
+
     var obj = convertUint8ArrayToObject(history);
     await obj.forEach(async function (item) {
-        window.remoteDrawingHistory.push(item);
+       // window.remoteDrawingHistory.push(item);
+       drawingHistory.push(item);
         var hexColor =  rgbToHex(item.color[0],item.color[1],item.color[2]);
         await setStroke(item.stroke[0] + canvasOffsetX, item.stroke[1] + canvasOffsetY, item.stroke[2]+ canvasOffsetX, item.stroke[3] + canvasOffsetY, item.size, hexColor);
     });
@@ -125,15 +127,26 @@ connection.on("setupRoom", async (roomName, description, playerCount, inviteLink
 // update from remote players
 connection.on("updateRoomPlayersDrawAction", async (drawAction) => {
     var obj = convertUint8ArrayToObject(drawAction);
-    remoteDrawingHistory.push(obj);
+    drawingHistory.push(obj);
+    //remoteDrawingHistory.push(obj);
 
     if (document.querySelector('#showPlayerName').checked) {
-        var x = obj.stroke[2] + canvasOffsetX - (context.measureText(obj.connId).width / 2);
-        var y = obj.stroke[3] + canvasOffsetY - 20;
+        var x = obj.stroke[2] + Math.floor((canvasOffsetX - (context.measureText(obj.connId).width / 2)));
+        var y = obj.stroke[3] + Math.floor((canvasOffsetY - 20));
         await drawPlayerName(canvasOverlay, contextOverlay, x, y, obj.connId);
     }
-   var hexColor =  rgbToHex(obj.color[0],obj.color[1],obj.color[2]);
+   var hexColor = rgbToHex(obj.color[0],obj.color[1],obj.color[2]);
     await setStroke(obj.stroke[0]+ canvasOffsetX, obj.stroke[1] + canvasOffsetY, obj.stroke[2] + canvasOffsetX, obj.stroke[3] + canvasOffsetY, obj.size, hexColor);
+});
+
+
+connection.on("resetRoom", () => {
+    ResetCanvas(context);
+});
+
+connection.on("saveDrawingAsJson", (message) => {
+    var obj = convertUint8ArrayToObject(message);
+    console.log(obj.message + " " + window.location.protocol + "//" + document.location.host + obj.additionalInfo);
 });
 
 
