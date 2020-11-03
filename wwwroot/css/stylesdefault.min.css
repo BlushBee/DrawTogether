@@ -75,10 +75,6 @@ canvas {
     bottom: 0;
 }
 
-#saveAsJson {
-    display: none; /* don't show it by default */
-}
-
 /*      div {
                  position: fixed;
             }*/
