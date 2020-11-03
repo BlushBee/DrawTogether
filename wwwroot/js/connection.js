@@ -101,7 +101,7 @@ connection.on("updatePlayerCount", async (count) => {
 
 
 //todo update server side to send it as one object
-connection.on("setupRoom", async (roomName, description, playerCount, inviteLink, history) => {
+connection.on("setupRoom", async (roomName, description, playerCount, inviteLink, history, version) => {
     context.clearRect(0, 0, canvas.width, canvas.height);
     //localDrawingHistory = [];
     //remoteDrawingHistory = [];
@@ -114,6 +114,7 @@ connection.on("setupRoom", async (roomName, description, playerCount, inviteLink
     document.getElementById("inviteUrl").innerText = " Room invite link: " + window.location.protocol + "//" + document.location.host + document.location.pathname + "?invite=" + inviteLink;
     document.getElementById("playerName").innerText = connId;
     document.getElementById("chatRoomInfo").innerHTML = 'Welcome to #' + roomName + '<br>Info: ' + description;
+    footer.innerHTML += ' | Version: ' + version;
 
     var obj = convertUint8ArrayToObject(history);
     await obj.forEach(async function (item) {
