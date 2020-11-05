@@ -2,21 +2,21 @@
 <html>
 <head>
     <meta charset="utf-8" />
-	<title>Draw together @ Blushyface.com</title>
-	
-	<link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="images/favicon/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="images/favicon/favicon-16x16.png">
-	<link rel="manifest" href="images/favicon/site.webmanifest">
-	<link rel="mask-icon" href="images/favicon/safari-pinned-tab.svg" color="#ffaec9">
-	<link rel="shortcut icon" href="images/favicon/favicon.ico">
-	<meta name="msapplication-TileColor" content="#ffffff">
-	<meta name="msapplication-config" content="images/favicon/browserconfig.xml">
-	<meta name="theme-color" content="#ffffff">
+    <title>Draw together @ Blushyface.com</title>
 
-	<link rel="stylesheet" href="css/bootstrap.min.css">
-	<link rel="stylesheet" href="css/fontawesome.min.css">
-	<link rel="stylesheet" href="css/styles.min.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon/favicon-16x16.png">
+    <link rel="manifest" href="images/favicon/site.webmanifest">
+    <link rel="mask-icon" href="images/favicon/safari-pinned-tab.svg" color="#ffaec9">
+    <link rel="shortcut icon" href="images/favicon/favicon.ico">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-config" content="images/favicon/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <link rel="stylesheet" href="css/styles.min.css">
 </head>
 <body class="preload">
 
@@ -121,12 +121,12 @@
                 </a>
             </div>
             <!--<div class="toolbar-item">
-            <a data-toggle="modal" data-target="#login-modal">
-                <div class="toolbar-item-icon login-selector" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="login">
-                    <i class="fal fa-sign-in-alt"></i>
-                </div>
-            </a>
-        </div>-->
+                <a data-toggle="modal" data-target="#login-modal">
+                    <div class="toolbar-item-icon login-selector" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="login">
+                        <i class="fal fa-sign-in-alt"></i>
+                    </div>
+                </a>
+            </div>-->
 
             <div class="toolbar-splitter">
                 <div></div>
@@ -204,7 +204,7 @@
                         <button type="button" class="btn btn-red" data-dismiss="modal" onclick="removeImageOverlay()">Delete overlay</button>
                         <button type="button" class="btn btn-black" data-dismiss="modal" onclick="addImageOverlay()">Load image from URL</button>
                     </div>
-                    
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-white" data-dismiss="modal">Back to drawing!</button>
@@ -388,41 +388,43 @@
                 </div>
             </div>
         </div>
-</div>
+    </div>
 
-<div class="modal fade" id="clear-modal" tabindex="-1" role="dialog" aria-labelledby="clear-modal-label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="clear-modal-label">Clear room drawing history</h5>
-                <a class="modal-close" data-dismiss="modal" aria-label="Close">
-                    <i class="fal fa-times"></i>
-                </a>
-            </div>
-            <div class="modal-body">
-                <p>
-                    Are you sure you want to clear the room?<br>
-                    <br>
-                    <strong>This will delete everything that was drawn. Including everything drawn from others!</strong>
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-white mr-auto" data-dismiss="modal">Back to drawing!</button>
-                <button onclick="resetRoom()" class="btn btn-red" data-dismiss="modal" type="button">Clear everything..</button><br>
+    <div class="modal fade" id="clear-modal" tabindex="-1" role="dialog" aria-labelledby="clear-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clear-modal-label">Clear room drawing history</h5>
+                    <a class="modal-close" data-dismiss="modal" aria-label="Close">
+                        <i class="fal fa-times"></i>
+                    </a>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Are you sure you want to clear the room?<br>
+                        <br>
+                        <strong>This will delete everything that was drawn. Including everything drawn from others!</strong>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white mr-auto" data-dismiss="modal">Back to drawing!</button>
+                    <button onclick="resetRoom()" class="btn btn-red" data-dismiss="modal" type="button">Clear everything..</button><br>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="lib/signalr/signalr.js"></script>
-<script src="lib/msgpack5.js"></script>
-<script src="lib/signalr-protocol-msgpack.js"></script>
-<script src="lib/jquery-3.5.1.min.js"></script>
-<script src="lib/jquery-ui.min.js"></script>
-<script src="js/bootstrap.bundle.min.js"></script>
-<script src="js/drawtogether.js"></script>
-<script src="js/connection.js"></script>
-<script src="js/ui.min.js"></script>
+    <script src="lib/signalr/signalr.js"></script>
+    <script src="lib/msgpack5.js"></script>
+    <script src="lib/signalr-protocol-msgpack.js"></script>
+    <script src="lib/jquery-3.5.1.min.js"></script>
+    <script src="lib/jquery-ui.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/connection.js"></script>
+    <script src="js/drawtogether.js"></script>
+    <script src="js/util.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/ui.min.js"></script>
 
 </body>
 </html>

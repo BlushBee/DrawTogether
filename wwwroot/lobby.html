@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Draw together @ Blushyface.com</title>
+    <link rel="stylesheet" href="css/stylesdefault.min.css">
+</head>
+<body>
+
+    <!--
+        The lobby is where players meet up to chat and create / join (open) rooms with room settings.
+        Once done they will be moved to default / alternative page and the ability to create / join rooms will be removed there at a later stage.
+    -->
+
+    <div id="container">
+        <label> Name: </label>
+        <input type="text" id="roomInputName" value="lobby">
+        <label>Password: </label>
+        <input type="password" id="roomInputPassword" value="">
+        <button onclick="" type="button">Create /join room</button>
+        <br />
+    </div>
+
+    <script src="/lib/signalr/signalr.js"></script>
+    <script src="lib/msgpack5.js"></script>
+    <script src="lib/signalr-protocol-msgpack.js"></script>
+    <script src="lib/jquery-3.5.1.min.js"></script>
+    <script src="lib/jquery-ui.min.js"></script>
+    <script src="js/drawtogether.js"></script>
+    <script src="js/connection.js"></script>
+
+</body>
+</html>

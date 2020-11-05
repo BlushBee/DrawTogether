@@ -1,11 +1,8 @@
-﻿//var localDrawingHistory = [];
-//var remoteDrawingHistory = []; // offload history to client + add identifier user name -> alias (to hide logged in user)
-var drawingHistory = []; // combines local and remote to test if this performs better
+﻿var drawingHistory = []; 
 var roomPlayers = []; // keep track of players in room in preparation of adding ban / kick / mute or remove player drawing from room
 var playerClientId;
 var playerName;
 var playerSessionId;
-var enableShowRemoteDrawingHistory = true; // todo when enabled hide remote people drawing but keep history
 var isInRoom = false;
 var strokeStartFrom = [0, 0];
 var strokeEndAt = [0, 0];
@@ -29,7 +26,7 @@ var footerOffsetY = 120;
 $(window).on('load',
     function () {
         canvas = createCanvas("canvas");
-        context = canvas.getContext("2d");
+        context = canvas.getContext("2d", { alpha: false });
 
         canvasOverlay = createCanvas("canvasOverlay");
         contextOverlay = canvasOverlay.getContext("2d");
@@ -80,8 +77,6 @@ $(window).on('load',
         resizeChatRoom(chatRoomOffsetY);
         resizeFooter(footerOffsetY);
 
-        //redraw(localDrawingHistory);
-        //redraw(remoteDrawingHistory);
         redraw(drawingHistory);
     });
 
@@ -90,8 +85,6 @@ window.addEventListener("resize", function () {
     resizeCanvas(canvasOverlay);
     resizeChatRoom(chatRoomOffsetY);
     resizeFooter(footerOffsetY);
-    //redraw(localDrawingHistory);
-    //redraw(remoteDrawingHistory);
     redraw(drawingHistory);
 });
 
@@ -136,7 +129,6 @@ $("#roomInputPassword").on('keyup', function (e) {
 
 
 function createCanvas(id) {
-
     // console.log(`createCanvas(${id})`);
 
     var canvas = document.createElement('canvas');
@@ -170,19 +162,15 @@ function startWhileDraw(e) {
         if (e.buttons === 1) {
             updatePlayerDrawAction();
         }
-        else if (e.buttons === 4) { // middle button
+        else if (e.buttons === 4) { // middle mouse button
             canvasOffsetX = Math.floor((canvasOffsetX + (strokeStartFrom[0] - strokeEndAt[0])));
             canvasOffsetY = Math.floor((canvasOffsetY + (strokeStartFrom[1] - strokeEndAt[1])));
             context.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height);
-            //contextOverlay.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height); // no need to clear the overlay as we aren't drawing
-            //redraw(remoteDrawingHistory);
-            //redraw(localDrawingHistory);
             redraw(drawingHistory);
         }
         strokeEndAt = strokeStartFrom;
     }
 }
-
 
 async function drawEnd() {
     if (isInRoom) {
@@ -192,43 +180,40 @@ async function drawEnd() {
 }
 
 
-
 async function updatePlayerDrawAction() {
-   var color = rgbColorToByteArray(selectedColor);
+   var color = rgbColorToArray(selectedColor);
     var action = [
         strokeEndAt[0] - canvasOffsetX,
         strokeEndAt[1] - canvasOffsetY,
         strokeStartFrom[0] - canvasOffsetX,
         strokeStartFrom[1] - canvasOffsetY
     ];
-    var stroke = { connId: connId, id: undoCollectionId, size: selectedSize, stroke: action, color: color};
+    var stroke = { connId: playerName, id: undoCollectionId, size: selectedSize, stroke: action, color: color};
 
     //pass the local offset to stroke
     setStroke(stroke.stroke[0] + canvasOffsetX, stroke.stroke[1] + canvasOffsetY, stroke.stroke[2] + canvasOffsetX, stroke.stroke[3] + canvasOffsetY, selectedSize, selectedColor);
-    //localDrawingHistory.push(stroke);
     drawingHistory.push(stroke);
-    //redraw(drawingHistory);
+
 
     //var bytes = msgpack5({ forceFloat64: true }).encode(stroke);
     //console.log(bytes);
+    // we are passing the data back as json but would be better if we send it back as msgpack5
     if (connection.state === signalR.HubConnectionState.Connected) {
         await connection.invoke("SetDrawAction", connId, JSON.stringify(stroke));
     }
 }
 
-function rgbColorToByteArray(rgb) {
+function rgbColorToArray(rgb) {
     var color = rgb.substring(4, rgb.length-1)
         .replace(/ /g, '')
         .split(',');
     return [parseInt(color[0]), parseInt(color[1]), parseInt(color[2])];
-
 }
 
-function byteArrayToRGB(byte) {
+function arrayToRGB(byte) {
     return `rgb(${byte[0]},${byte[1]},${byte[2]})`;
-
-
 }
+
 function setStroke(x1, y1, x2, y2, size, color) {
     context.lineCap = "round";
     context.lineWidth = size;
@@ -249,7 +234,6 @@ function drawPlayerName(canvas, context, x, y, name) {
     context.fillText(name, x, y);
 }
 
-
 async function undo() {
     undoCollectionId = 0;
     drawingHistory.forEach(function (item) {
@@ -260,25 +244,13 @@ async function undo() {
 
     drawingHistory = drawingHistory.filter(item => !(item.id === undoCollectionId && item.connId === connId));
 
-    //localDrawingHistory.forEach(function (item) {
-    //    if (item.id > undoCollectionId) {
-    //        undoCollectionId = item.id;
-    //    }
-    //});
-
-    //localDrawingHistory = localDrawingHistory.filter(item => !(item.id === undoCollectionId));
     context.clearRect(0, 0, canvas.width, canvas.height);
-
-    //redraw(remoteDrawingHistory);
-    //redraw(localDrawingHistory);
     redraw(drawingHistory);
 
     if (connection.state === signalR.HubConnectionState.Connected) {
         await connection.invoke("UndoDrawAction", connId, undoCollectionId);
     }
 }
-
-
 
 var oldRoomName;
 var oldRoomPassword;
@@ -299,7 +271,6 @@ async function joinRoom() {
         var url = window.location.protocol + "//" + document.location.host + document.location.pathname + "?room=" + document.getElementById("roomInputName").value;
         window.history.pushState('page2', 'Title', url);
 
-        //todo we could do this in one call -> return entire room info instead of just player count in room?
         await connection.invoke("UpdateClientRoomOnConnect", connId, roomInputName, roomInputPassword);
     }
 }
@@ -307,9 +278,10 @@ async function joinRoom() {
 
 function redraw(drawHistory) {
     //console.log("redraw()");
+    setBackgroundColor(canvas, context, "white");
+
     drawHistory.forEach(function (item) {
-        //var hexColor = rgbToHex(item.color[0], item.color[1], item.color[2]);
-        setStroke(item.stroke[0] + canvasOffsetX, item.stroke[1] + canvasOffsetY, item.stroke[2] + canvasOffsetX, item.stroke[3] + canvasOffsetY, item.size, byteArrayToRGB(item.color));
+        setStroke(item.stroke[0] + canvasOffsetX, item.stroke[1] + canvasOffsetY, item.stroke[2] + canvasOffsetX, item.stroke[3] + canvasOffsetY, item.size, arrayToRGB(item.color));
     });
 }
 
@@ -325,7 +297,6 @@ function resizeCanvas(canvas) {
 
 
 function ResetCanvas(context) {
-
     context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -350,32 +321,14 @@ function createFooter(footerOffsetY) {
 }
 
 function resizeFooter(offsetY) {
-    console.log("resizeFooter()");
+    //console.log("resizeFooter()");
     footer.style.marginTop = Math.floor(innerHeight - offsetY) + "px";
 }
 
 
 
 
-function createChatRoomMessage(from, message, type) {
-    var divFrom = document.createElement('div');
-    divFrom.id = "chatMessage";
 
-    if (from !== "") {
-        divFrom.innerHTML = from + ": " + message;
-    } else {
-        divFrom.innerHTML = message;
-    }
-   
-
-    if (type === 2 || type === 3) {
-        divFrom.style.color = "grey";
-    }
-    var chatRoom = document.getElementById("chatRoomMessages");
-    chatRoom.appendChild(divFrom);
-
-    chatRoom.scrollTop = chatRoom.scrollHeight - chatRoom.clientHeight;
-}
 
 
 function saveRoomDrawingAsImage() {
@@ -392,22 +345,11 @@ function saveRoomDrawingAsImage() {
 
 
 async function saveRoomDrawingAsJson() {
-    // console.log("saveRoomDrawingAsFile()");
-
     if (connection.state === signalR.HubConnectionState.Connected) {
         var room = document.getElementById('roomName').innerText;
         await connection.invoke("SaveDrawingAsJson", connId, room);
     }
 }
-
-function getMousePosition(canvas, event) {
-    const rect = canvas.getBoundingClientRect();
-    const x = Math.floor(event.clientX - rect.left);
-    const y = Math.floor(event.clientY - rect.top);
-
-    return [x, y];
-}
-
 
 function setColor(color) {
     selectedColor = color;
@@ -417,48 +359,23 @@ function setStrokeSize(size) {
     selectedSize = size;
 }
 
-
+function setBackgroundColor(canvas, context, color) {
+    context.fillStyle = color;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+}
 function undoDrawAction(connId, strokeId) {
     if (Array.isArray(drawingHistory) && drawingHistory.length) {
         drawingHistory = drawingHistory.filter(item => !(item.connId === connId && item.id === strokeId));
-       // remoteDrawingHistory = remoteDrawingHistory.filter(item => !(item.connId === connId && item.id === strokeId));
         context.clearRect(0, 0, canvas.width, canvas.height);
-
-        //redraw(remoteDrawingHistory);
-        //redraw(localDrawingHistory);
         redraw(drawingHistory);
     }
 }
 
 async function resetRoom() {
     ResetCanvas(context);
-    //remoteDrawingHistory = [];
-    //localDrawingHistory = [];
     drawingHistory = [];
 
     if (connection.state === signalR.HubConnectionState.Connected) {
         await connection.invoke("ResetRoom", connId);
     }
-}
-
-async function sendChatRoomMessage() {
-    if (connection.state === signalR.HubConnectionState.Connected) {
-        var message = document.getElementById('chatRoomInputMessage').value;
-        await connection.invoke("SendMessageToRoom", connId, message);
-    }
-}
-
-// due to reducing data packet size we are now receiving data as a uInt8 array but we need to convert it.
-function convertUint8ArrayToJson(uInt8Array) {
-    // console.log("convertUint8ArrayToJson()");
-
-    var obj = msgpack5({ forceFloat64: true }).decode(uInt8Array);
-    var json = JSON.stringify(obj);
-    return json;
-}
-
-function convertUint8ArrayToObject(uInt8Array) {
-    // console.log("convertUint8ArrayToObject()");
-
-    return msgpack5({ forceFloat64: true }).decode(uInt8Array);
 }

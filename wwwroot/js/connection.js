@@ -1,7 +1,4 @@
-﻿
-
-
-const connection = new signalR.HubConnectionBuilder()
+﻿const connection = new signalR.HubConnectionBuilder()
     .withUrl("/drawhub")
     .withHubProtocol(new signalR.protocols.msgpack.MessagePackHubProtocol())
     .configureLogging(signalR.LogLevel.Information)
@@ -66,8 +63,6 @@ connection.on("pingpong", async (message) => {
 //todo update server side to send it as one object
 connection.on("setupRoom", async (roomName, description, playerCount, inviteLink, history, version) => {
     context.clearRect(0, 0, canvas.width, canvas.height);
-    //localDrawingHistory = [];
-    //remoteDrawingHistory = [];
     drawingHistory = [];
     window.isInRoom = true;
 
@@ -79,12 +74,12 @@ connection.on("setupRoom", async (roomName, description, playerCount, inviteLink
     document.getElementById("chatRoomInfo").innerHTML = 'Welcome to #' + roomName + '<br>Info: ' + description;
     footer.innerHTML += ' | Version: ' + version;
 
+    setBackgroundColor(canvas, context, "white");
+
     var obj = convertUint8ArrayToObject(history);
     await obj.forEach(async function (item) {
-        // window.remoteDrawingHistory.push(item);
         drawingHistory.push(item);
-       // var hexColor =  rgbToHex(item.color[0],item.color[1],item.color[2]);
-        await setStroke(item.stroke[0] + canvasOffsetX, item.stroke[1] + canvasOffsetY, item.stroke[2]+ canvasOffsetX, item.stroke[3] + canvasOffsetY, item.size, byteArrayToRGB(item.color));
+        await setStroke(item.stroke[0] + canvasOffsetX, item.stroke[1] + canvasOffsetY, item.stroke[2]+ canvasOffsetX, item.stroke[3] + canvasOffsetY, item.size, arrayToRGB(item.color));
     });
 });
 
@@ -98,10 +93,8 @@ connection.on("playerInfo", (player) => {
     document.getElementById("playerName").innerText = playerName;
 });
 
-
 connection.on("recieveChatRoomMessage", async (chatMessage) => {
     var obj = convertUint8ArrayToObject(chatMessage);
-    console.log(obj);
     createChatRoomMessage(obj.from, obj.message, obj.type);
 });
 
@@ -115,8 +108,6 @@ connection.on("undoDrawAction", async (stroke) => {
 connection.on("setClearPlayerName", async () => {
     contextOverlay.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height);
 });
-
-
 
 connection.on("recieveMessage", async (message) => {
     var obj = convertUint8ArrayToObject(message);
@@ -132,12 +123,10 @@ connection.on("recieveMessage", async (message) => {
     }
 });
 
-
 connection.on("updatePlayerCount", async (count) => {
     var obj = convertUint8ArrayToObject(count);
     document.getElementById('playerCount').innerText = obj;
 });
-
 
 // update from remote players
 connection.on("updateRoomPlayersDrawAction", async (drawAction) => {
@@ -148,7 +137,7 @@ connection.on("updateRoomPlayersDrawAction", async (drawAction) => {
         var y = obj.stroke[3] + Math.floor((canvasOffsetY - 20));
         await drawPlayerName(canvasOverlay, contextOverlay, x, y, obj.connId);
     }
-    await setStroke(obj.stroke[0]+ canvasOffsetX, obj.stroke[1] + canvasOffsetY, obj.stroke[2] + canvasOffsetX, obj.stroke[3] + canvasOffsetY, obj.size, byteArrayToRGB(obj.color));
+    await setStroke(obj.stroke[0]+ canvasOffsetX, obj.stroke[1] + canvasOffsetY, obj.stroke[2] + canvasOffsetX, obj.stroke[3] + canvasOffsetY, obj.size, arrayToRGB(obj.color));
 });
 
 connection.on("resetRoom", () => {
@@ -159,7 +148,6 @@ connection.on("saveDrawingAsJson", (message) => {
     var obj = convertUint8ArrayToObject(message);
     console.log(obj.message + " " + window.location.protocol + "//" + document.location.host + obj.additionalInfo);
 });
-
 
 // Start the connection.
 start();
